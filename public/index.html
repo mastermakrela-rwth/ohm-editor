@@ -3,24 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <title>Ohm Editor</title>
-    <script
-      src="https://thirteen-six.ohmjs.org/script.js"
-      data-site="KJSMJZEV"
-      defer
-    ></script>
+    <script src="https://thirteen-six.ohmjs.org/script.js" data-site="KJSMJZEV" defer></script>
     <link rel="stylesheet" href="style/parseTree.css" />
-    <link
-      rel="stylesheet"
-      href="third_party/codemirror-5.11/lib/codemirror.css"
-    />
+    <link rel="stylesheet" href="third_party/codemirror-5.11/lib/codemirror.css" />
     <link rel="stylesheet" href="style/index.css" />
     <link rel="stylesheet" href="style/ellipsis-dropdown.css" />
     <link rel="stylesheet" href="style/example-list.css" />
     <link rel="stylesheet" href="style/parseTree.css" />
-    <link
-      rel="stylesheet"
-      href="third_party/css/bootstrap-dropdown-3.3.7.css"
-    />
+    <link rel="stylesheet" href="third_party/css/bootstrap-dropdown-3.3.7.css" />
   </head>
   <body class="twoPane">
     <div id="mainLayout"><!-- See components main-layout.vue --></div>
@@ -30,16 +20,8 @@
     <div id="optionPanel">
       <div id="options">
         <ul>
-          <li>
-            <input type="checkbox" name="showFailures" /><label
-              >Explain parse</label
-            >
-          </li>
-          <li>
-            <input type="checkbox" name="showSpaces" /><label
-              >Show spaces</label
-            >
-          </li>
+          <li><input type="checkbox" name="showFailures" /><label>Explain parse</label></li>
+          <li><input type="checkbox" name="showSpaces" /><label>Show spaces</label></li>
         </ul>
         <hr />
       </div>
@@ -65,12 +47,7 @@
         <p id="newGrammarBoxMessage"></p>
         <form id="newGrammarForm">
           <label for="newGrammarName" style="width: 110px">Grammar name:</label>
-          <input
-            type="text"
-            name="newGrammarName"
-            id="newGrammarName"
-            style="width: 290px"
-          /><br />
+          <input type="text" name="newGrammarName" id="newGrammarName" style="width: 290px" /><br />
           <input type="submit" value="Save" />
           <input type="reset" value="Cancel" />
         </form>
@@ -83,11 +60,7 @@
 
     <div id="protos" hidden>
       <div class="footer">
-        <input type="search" /><input
-          class="closeButton"
-          type="button"
-          value="Done"
-        />
+        <input type="search" /><input class="closeButton" type="button" value="Done" />
       </div>
       <div class="externalRules"><div class="content"></div></div>
     </div>
@@ -96,45 +69,104 @@
     <div id="operationMenu" class="contextMenu" hidden><ul></ul></div>
     <div hidden>
       <pre id="sampleGrammar">
-Arithmetic {
-  Exp
-    = AddExp
+WHILE {
+	Program = Cmd | BExp | AExp
 
-  AddExp
-    = AddExp "+" MulExp  -- plus
-    | AddExp "-" MulExp  -- minus
-    | MulExp
+	Cmd	(commands / statements)
+		= Cmd ";" Cmd							-- seq
+		| "if" BExp "then" Cmd "else" Cmd "end"	-- if
+		| "while" BExp "do" Cmd "end"			-- while
+		| var ":=" AExp							-- assign
+		| "skip"								-- skip
 
-  MulExp
-    = MulExp "*" ExpExp  -- times
-    | MulExp "/" ExpExp  -- divide
-    | ExpExp
+	BExp
+		= BExp "&&" BExp	-- and
+		| BExp "||" BExp	-- or
+        | "!" PriBExp		-- not
+        | PriBExp
 
-  ExpExp
-    = PriExp "^" ExpExp  -- power
-    | PriExp
+	PriBExp
+		= "(" BExp ")"		-- paren
+		| "&&" PriBExp		-- and
+		| "||" PriBExp		-- or
+		| AExp "=" AExp		-- eq
+		| AExp ">" AExp		-- gt
+		| AExp "<" AExp		-- lt
+		| AExp ">=" AExp	-- geq
+		| AExp "<=" AExp	-- leq
+		| bool
 
-  PriExp
-    = "(" Exp ")"  -- paren
-    | "+" PriExp   -- pos
-    | "-" PriExp   -- neg
-    | ident
-    | number
+	AExp (arithmetic expressions)
+		= AExp "+" AExp		-- add
+		| AExp "-" AExp		-- sub
+		| AExp "*" PriAExp	-- mul
+		| PriAExp
 
-  ident  (an identifier)
-    = letter alnum*
+	PriAExp
+		= "(" AExp ")"		-- paren
+		| "+" PriAExp		-- pos
+		| var
+		| number
 
-  number  (a number)
-    = digit* "." digit+  -- fract
-    | digit+             -- whole
+	bool (a bool value)
+		= "true" ~var
+		| "false" ~var
+
+	var  (a variable)
+		= letter+
+
+	number	(positive and negative integers)
+		= "-" digit+	--negative
+		| digit+		--positive
 }</pre
       >
       <pre id="sampleExamples">
-      <pre>2 * (42 - 1) / 9</pre>
-      <pre>1+2*3</pre>
-      <pre>oh no</pre>
-      <pre> (  	123   ) </pre>
-      <pre>(2+4)*7</pre>
+    <pre>
+x := 6;
+y := 7;
+z := 0;
+while x > 0 do
+  x := x - 1;
+  v := y;
+  while v > 0 do
+    v := v - 1;
+    z := z + 1
+  end
+end
+
+    </pre>
+    <pre>
+while x > 0 do
+  x := x - 1;
+  v := y;
+  while v > 0 do
+    v := v - 1;
+    z := z + 1
+  end
+end
+
+    </pre>
+    <pre>
+x := 0;
+y := 1;
+z := 0;
+while x < 100 do
+  z := x + y;
+  x := y;
+  y := z
+end
+</pre>
+    <pre>
+z := (x+3) * (y-2)
+
+    </pre>
+    <pre>
+(2 - -4) * (11 - y)
+
+    </pre>
+    <pre>
+!1=1 || (true && 3 <= 4) 
+</pre>
     </pre>
     </div>
 
