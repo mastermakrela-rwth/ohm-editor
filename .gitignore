@@ -6,4 +6,5 @@ build/*
 /playwright-report/
 /playwright/.cache/
 
-.build
+.build/*
+!.build/.ignore
